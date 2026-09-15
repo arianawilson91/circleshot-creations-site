@@ -1,8 +1,28 @@
-.DS_Store
+# dependencies
 node_modules/
+
+# next.js
+.next/
+out/
+build/
+
+# production
+dist/
+
+# misc
+.DS_Store
+*.pem
+*.log
 .vscode/
 .idea/
-*.log
+
+# local env files
 .env
+.env*.local
+
+# typescript
+next-env.d.ts
+*.tsbuildinfo
+
+# deployment
 .vercel
-assets/videos/

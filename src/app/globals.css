@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- Brand palette ---- */
+  --color-bg: #0A1429;
+  --color-bg-alt: #0E1A33;
+  --color-ink: #F4EFE5;
+  --color-ink-soft: #8997B4;
+  --color-cyan: #72B6FF;
+  --color-magenta: #FF6BAA;
+  --color-violet: #B08CFF;
+
+  /* ---- Type ---- */
+  --font-display: var(--font-fraunces), 'Times New Roman', serif;
+  --font-sans: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), 'SF Mono', ui-monospace, monospace;
+
+  /* ---- Motion ---- */
+  --ease-brand: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Fixed nav clearance for anchor jumps */
+    scroll-padding-top: 120px;
+    /*
+     * Reserve the scrollbar gutter permanently. The mobile menu sets
+     * `body { overflow: hidden }` to lock scrolling; without this the
+     * scrollbar vanishes and the whole page reflows sideways underneath it.
+     */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    /* Fraunces is loaded variable; let the opsz axis track the rendered size. */
+    font-optical-sizing: auto;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, p { margin: 0; }
+  button { font-family: inherit; }
+
+  ::selection {
+    background: var(--color-magenta);
+    color: var(--color-bg);
+  }
+
+  /* Visible keyboard focus everywhere — the prototype had none. */
+  :focus-visible {
+    outline: 2px solid var(--color-cyan);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+@layer utilities {
+  /* Gradient-filled text used in the hero, process and book headlines. */
+  .text-gradient {
+    background: linear-gradient(95deg, var(--color-cyan), var(--color-magenta) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-tri {
+    background: linear-gradient(95deg, var(--color-cyan), var(--color-magenta), var(--color-violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-violet {
+    background: linear-gradient(95deg, var(--color-magenta), var(--color-violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Hero grid backdrop */
+  .hero-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+    -webkit-mask-image: radial-gradient(ellipse at 50% 40%, black 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse at 50% 40%, black 30%, transparent 75%);
+  }
+}
+
+/* ---- Keyframes ---- */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+@keyframes spinCW {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes spinCCW {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+.animate-marquee {
+  animation: marquee 50s linear infinite;
+}
+.animate-pulse-dot {
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+/*
+ * Hero rig rotation.
+ *
+ * The prototype drove this from a requestAnimationFrame loop in React state,
+ * which re-rendered the whole hero ~60x/second. These are pure CSS animations
+ * on the compositor instead — same look, no render churn, and they stop dead
+ * under prefers-reduced-motion.
+ */
+.rig-ring-outer  { animation: spinCW 20s linear infinite; }
+.rig-ring-middle { animation: spinCCW 33s linear infinite; }
+.rig-orbit-cyan  { animation: spinCW 20s linear infinite; }
+.rig-orbit-magenta { animation: spinCCW 33s linear infinite; }
+.rig-orbit-cyan > *  { animation: spinCCW 20s linear infinite; }
+.rig-orbit-magenta > * { animation: spinCW 33s linear infinite; }
+
+/* ---- Reduced motion: kill every ambient animation ---- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * Gallery collage. The asymmetric 12-column layout only makes sense with room
+ * to breathe, so the --c / --r spans are scoped to >=1024px; below that the
+ * tiles inherit the plain 2-column grid and their own aspect ratio.
+ */
+@media (min-width: 1024px) {
+  .collage > * {
+    grid-column: var(--c);
+    grid-row: var(--r);
+    height: 100%;
+  }
+}
