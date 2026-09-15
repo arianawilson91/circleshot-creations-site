@@ -98,13 +98,26 @@ export async function POST(request: Request) {
   const to = process.env.BOOKING_TO_EMAIL;
   const from = process.env.BOOKING_FROM_EMAIL;
 
-  // No mail configured (local dev): log it and succeed, so the form stays testable.
   if (!apiKey || !to || !from) {
-    console.info(
-      '[book] RESEND_API_KEY / BOOKING_TO_EMAIL / BOOKING_FROM_EMAIL not set — enquiry not emailed:\n' +
-        text,
+    // Local dev: log it and succeed, so the form stays testable without an account.
+    if (process.env.NODE_ENV !== 'production') {
+      console.info(
+        '[book] RESEND_API_KEY / BOOKING_TO_EMAIL / BOOKING_FROM_EMAIL not set — enquiry not emailed:\n' +
+          text,
+      );
+      return NextResponse.json({ ok: true, delivered: false });
+    }
+
+    /*
+     * Production with no mail configured. Never report success here: a form that
+     * silently swallows booking enquiries is worse than one that visibly fails,
+     * because nobody finds out until a customer asks why they were ignored.
+     */
+    console.error('[book] MISCONFIGURED — enquiry received but no mail credentials set:\n' + text);
+    return NextResponse.json(
+      { error: 'Our booking form isn’t connected yet.' },
+      { status: 503 },
     );
-    return NextResponse.json({ ok: true, delivered: false });
   }
 
   try {
